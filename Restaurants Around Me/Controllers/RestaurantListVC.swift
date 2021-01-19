@@ -54,7 +54,7 @@ class RestaurantListVC: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = tableView.dequeueReusableCell(withIdentifier: "cellID", for: indexPath) as! RestaurantCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cellID", for: indexPath) as! RestaurantCell
         cell.label.text = restaurantDetails[indexPath.row].name
         if let url = URL(string: restaurantDetails[indexPath.row].images.thumbnail) {
             cell.pictureView.load(url: url)
@@ -133,8 +133,6 @@ extension RestaurantListVC: CLLocationManagerDelegate {
         })
         
         locationManager.stopUpdatingLocation()
-        
-        
     }
 }
 

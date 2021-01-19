@@ -122,7 +122,7 @@ class RestaurantCell: UITableViewCell {
 extension UIImageView {
     func copy() -> UIImageView {
         let newImage: UIImageView = {
-            var imageView = UIImageView()
+            let imageView = UIImageView()
             
             imageView.image = self.image
             imageView.tintColor = self.tintColor

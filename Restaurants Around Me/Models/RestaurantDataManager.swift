@@ -66,7 +66,6 @@ class RestaurantDataManager {
             URLSession.shared.dataTask(with: request) { (data, response, error) in
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let data = data else { self.delegate?.didFailWithError(error: "Empty Data"); return }
-                print(String(data: data, encoding: .utf8))
                 if let returnedModel = self.parseLocationJSON(locationData: data, locationModel: userLocation) {
                     self.delegate?.gotLocationData(locationData: returnedModel)
                 } else {
@@ -114,8 +113,6 @@ class RestaurantDataManager {
             URLSession.shared.dataTask(with: request) { (data, response, error) in
                 guard error == nil else { print(error!.localizedDescription); return }
                 guard let data = data else { self.delegate?.didFailWithError(error: "Empty Data"); return }
-                
-                print(String(data: data, encoding: .utf8))
                 
                 if let returnedModel = self.parseRestaurantListJSON(listData: data) {
                     self.delegate?.gotListData(restaurantListData: returnedModel)
