@@ -1,0 +1,5 @@
+#import <Foundation/Foundation.h>
+@interface PodsDummy_Pods_Restaurants_Around_Me_Restaurants_Around_MeUITests : NSObject
+@end
+@implementation PodsDummy_Pods_Restaurants_Around_Me_Restaurants_Around_MeUITests
+@end

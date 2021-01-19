@@ -1,0 +1,6 @@
+framework module Pods_Restaurants_Around_Me_Restaurants_Around_MeUITests {
+  umbrella header "Pods-Restaurants Around Me-Restaurants Around MeUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
