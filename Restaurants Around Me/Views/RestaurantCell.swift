@@ -29,13 +29,24 @@ class RestaurantCell: UITableViewCell {
         return  pictureView
     }()
     
+    var ratingStar: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "star")
+        imageView.tintColor = .red
+        
+        return imageView
+    }()
+    
+    var ratingStars: [UIImageView] = [UIImageView]()
+
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         accessoryType = .disclosureIndicator
         
-        separatorInset = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
-        
-        
+        for _ in 0..<5 {
+            ratingStars.append(ratingStar.copy())
+        }
         setupViews()
         
     }
@@ -66,10 +77,59 @@ class RestaurantCell: UITableViewCell {
         
         label.snp.makeConstraints { (make) in
             make.top.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.height.equalTo(20)
             make.leading.equalTo(pictureView.snp.trailing).offset(10)
             make.trailing.equalToSuperview()
         }
+        
+        addSubview(ratingStars[0])
+        ratingStars[0].snp.makeConstraints { (make) in
+            make.top.equalTo(label.snp.bottom)
+            make.leading.equalTo(pictureView.snp.trailing).offset(10)
+            make.height.equalTo(20)
+            make.width.equalTo(20)
+        }
+        
+        for index in 1..<5 {
+            addSubview(ratingStars[index])
+            ratingStars[index].snp.makeConstraints { (make) in
+                make.top.equalTo(label.snp.bottom)
+                make.leading.equalTo(ratingStars[index - 1].snp.trailing).offset(10)
+                make.height.equalTo(20)
+                make.width.equalTo(20)
+            }
+        }
+        
+            
+    }
+    
+    func updateRatingStarts(rating: Double) {
+        var rounded = round(rating * 2) / 2
+        let roundedInt = Int(rounded)
+        
+        for index in 0..<roundedInt {
+            rounded -= 1
+            ratingStars[index].image = UIImage(systemName: "star.fill")
+        }
+        
+        if rounded != 0 {
+            ratingStars[roundedInt].image = UIImage(systemName: "star.leadinghalf.fill")
+        }
     }
 
+}
+
+extension UIImageView {
+    func copy() -> UIImageView {
+        let newImage: UIImageView = {
+            var imageView = UIImageView()
+            
+            imageView.image = self.image
+            imageView.tintColor = self.tintColor
+            
+            return imageView
+        }()
+        
+        return newImage
+    }
 }

@@ -22,7 +22,7 @@ struct RestaurantModel: Codable {
     
     let menuURL: String
     
-    let ratings: RestaurantRating
+    var ratings: RestaurantRating
     
     init (name: String, website: String, location: RestaurantLocation, priceRanking: Int, images: RestaurantImages, menuURL: String, ratings: RestaurantRating) {
         self.name = name
@@ -50,7 +50,7 @@ struct RestaurantLocation: Codable {
 }
 
 struct RestaurantRating: Codable {
-    let rating: String
+    var rating: String
     lazy var ratingDouble: Double = Double(rating)!
     
     let votes: Int

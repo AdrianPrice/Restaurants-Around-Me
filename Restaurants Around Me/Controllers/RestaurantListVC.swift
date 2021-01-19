@@ -43,6 +43,7 @@ class RestaurantListVC: UITableViewController {
         var cell = tableView.dequeueReusableCell(withIdentifier: "cellID", for: indexPath) as! RestaurantCell
         cell.label.text = restaurantDetails[indexPath.row].name
         cell.pictureView.load(url: URL(string: restaurantDetails[indexPath.row].images.thumbnail)!)
+        cell.updateRatingStarts(rating: restaurantDetails[indexPath.row].ratings.ratingDouble)
         return cell
     }
     
@@ -65,8 +66,6 @@ class RestaurantListVC: UITableViewController {
 
 extension RestaurantListVC: RestaurantDataDelegate {
     func gotDetailData(restaurantDetail: RestaurantModel) {
-//        print(restaurantDetail.name)
-//        print(restaurantDetail.location.address)
         
         restaurantDetails.append(restaurantDetail)
         
