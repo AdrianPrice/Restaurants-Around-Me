@@ -7,10 +7,13 @@
 
 import Foundation
 import UIKit
+import CoreLocation
 
 class RestaurantListVC: UITableViewController {
     var nav = false
     var userLocationData = LocationModel(latitude: "-37.4718", longitude: "145.1426", cityName: "Ringwood") //This will eventually be fetched
+    
+    let locationManager = CLLocationManager()
     
     /*
      SAMPLE DATA
@@ -28,8 +31,18 @@ class RestaurantListVC: UITableViewController {
     
     override func loadView() {
         super.loadView()
+        // For use in foreground
+        self.locationManager.requestWhenInUseAuthorization()
+
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+        }
+
+        
         dataManager.delegate = self
-        dataManager.fetchLocationData(userLocation: userLocationData)
+        
         
         tableView.register (RestaurantCell.self, forCellReuseIdentifier: "cellID")
         view.addSubview(restaurantList)
@@ -42,7 +55,9 @@ class RestaurantListVC: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = tableView.dequeueReusableCell(withIdentifier: "cellID", for: indexPath) as! RestaurantCell
         cell.label.text = restaurantDetails[indexPath.row].name
-        cell.pictureView.load(url: URL(string: restaurantDetails[indexPath.row].images.thumbnail)!)
+        if let url = URL(string: restaurantDetails[indexPath.row].images.thumbnail) {
+            cell.pictureView.load(url: url)
+        }
         cell.updateRatingStarts(rating: restaurantDetails[indexPath.row].ratings.ratingDouble)
         return cell
     }
@@ -89,6 +104,35 @@ extension RestaurantListVC: RestaurantDataDelegate {
 //        print(locationData.groupType)
         
         dataManager.fetchListOfRestaurantIDs(userLocation: locationData)
+    }
+}
+
+extension RestaurantListVC: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        print("locations = \(locValue.latitude) \(locValue.longitude)")
+        
+        let geoCoder = CLGeocoder()
+        let loc: CLLocation = CLLocation(latitude: locValue.latitude, longitude: locValue.longitude)
+        
+        geoCoder.reverseGeocodeLocation(loc, completionHandler: { (placemarks, _) -> Void in
+
+            placemarks?.forEach { (placemark) in
+
+                if let city = placemark.locality {
+                    self.userLocationData = LocationModel(latitude: String(locValue.latitude), longitude: String(locValue.longitude), cityName: city)
+                    self.dataManager.fetchLocationData(userLocation: self.userLocationData)
+                } else {
+                    print("No address found")
+                    self.dataManager.fetchLocationData(userLocation: self.userLocationData)
+                }
+                
+            }
+        })
+        
+        
+        
+        
     }
 }
 
