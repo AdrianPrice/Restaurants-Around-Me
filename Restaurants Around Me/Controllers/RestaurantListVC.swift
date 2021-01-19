@@ -38,6 +38,7 @@ class RestaurantListVC: UITableViewController {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
             locationManager.startUpdatingLocation()
+
         }
 
         
@@ -118,19 +119,20 @@ extension RestaurantListVC: CLLocationManagerDelegate {
         geoCoder.reverseGeocodeLocation(loc, completionHandler: { (placemarks, _) -> Void in
 
             placemarks?.forEach { (placemark) in
-
                 if let city = placemark.locality {
                     self.userLocationData = LocationModel(latitude: String(locValue.latitude), longitude: String(locValue.longitude), cityName: city)
+                    self.restaurantDetails = []
                     self.dataManager.fetchLocationData(userLocation: self.userLocationData)
                 } else {
                     print("No address found")
+                    self.restaurantDetails = []
                     self.dataManager.fetchLocationData(userLocation: self.userLocationData)
                 }
                 
             }
         })
         
-        
+        locationManager.stopUpdatingLocation()
         
         
     }

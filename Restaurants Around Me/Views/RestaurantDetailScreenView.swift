@@ -107,7 +107,10 @@ class RestaurantDetailScreenView: UIView {
         DispatchQueue.main.async {
             self.screenTitle.text = restaurantModel.name
             self.addressLabel.text = restaurantModel.location.address
-            self.headerImage.load(url: URL(string: restaurantModel.images.featureImage)!)
+            if let url = URL(string: restaurantModel.images.featureImage) {
+                self.headerImage.load(url: url)
+            }
+            
         }
     }
     
