@@ -57,7 +57,7 @@ class RestaurantDataManager {
      curl -X GET --header "Accept: application/json" --header "user-key: 5833c98252ee6ae51f14ba17f79b5b02 " "https://developers.zomato.com/api/v2.1/locations?query=Ringwood&lat=-37.4718&lon=145.1426"
      */
     func getLocationCodeAndGroup (userLocation: LocationModel) -> Void {
-        if let fetchLink = URL(string: "https://developers.zomato.com/api/v2.1/locations?query=\(userLocation.cityName)&lat=\(userLocation.latitude)&lon=\(userLocation.longitude)") {
+        if let fetchLink = URL(string: "https://developers.zomato.com/api/v2.1/locations?query=\(userLocation.cityName.replacingOccurrences(of: " ", with: "%20"))&lat=\(userLocation.latitude)&lon=\(userLocation.longitude)") {
             var request = URLRequest(url: fetchLink)
             request.httpMethod = "POST"
             request.addValue("d1753bb21685b078e65456592c49e3a8", forHTTPHeaderField: "user-key")
@@ -73,7 +73,7 @@ class RestaurantDataManager {
                 }
             }.resume()
         } else {
-            self.delegate?.didFailWithError(error: "Invalid URL")
+            self.delegate?.didFailWithError(error: "Invalid URL: https://developers.zomato.com/api/v2.1/locations?query=\(userLocation.cityName)&lat=\(userLocation.latitude)&lon=\(userLocation.longitude)")
         }
     }
     
@@ -121,7 +121,7 @@ class RestaurantDataManager {
                 }
             }.resume()
         } else {
-            self.delegate?.didFailWithError(error: "Invalid URL")
+            self.delegate?.didFailWithError(error: "Invalid URL: https://developers.zomato.com/api/v2.1/location_details?entity_id=\(userLocation.cityID!)&entity_type=\(userLocation.groupType!)")
         }
     }
     
@@ -167,7 +167,7 @@ class RestaurantDataManager {
                 }
             }.resume()
         } else {
-            self.delegate?.didFailWithError(error: "Invalid URL")
+            self.delegate?.didFailWithError(error: "Invalid URL: https://developers.zomato.com/api/v2.1/restaurant?res_id=\(restaurantID)")
         }
     }
     

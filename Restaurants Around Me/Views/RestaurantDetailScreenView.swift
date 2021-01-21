@@ -53,6 +53,15 @@ class RestaurantDetailScreenView: UIView {
         return imageView
     }()
     
+    let viewMenuButton: UIButton = {
+        let button = UIButton()
+        
+        button.backgroundColor = .gray
+        button.setTitle("View Menu", for: .normal)
+        
+        return button
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -62,6 +71,7 @@ class RestaurantDetailScreenView: UIView {
         addSubview(screenTitle)
         addSubview(addressLabel)
         addSubview(mapSymbol)
+        addSubview(viewMenuButton)
         
         initialiseView()
         
@@ -100,6 +110,13 @@ class RestaurantDetailScreenView: UIView {
             make.leading.equalTo(mapSymbol.snp.trailing).offset(5)
             //make.height.equalTo(45)
             make.width.equalToSuperview().inset(10)
+        }
+        
+        viewMenuButton.snp.makeConstraints { (make) in
+            make.top.equalTo(addressLabel.snp.bottom).offset(50)
+            make.centerX.equalToSuperview()
+            make.height.equalTo(50)
+            make.width.equalTo(200)
         }
     }
     

@@ -7,9 +7,11 @@
 
 import Foundation
 import UIKit
+import WebKit
 
-class RestaurantDetailScreenVC: UIViewController {
+class RestaurantDetailScreenVC: UIViewController, WKUIDelegate {
     let detailScreen = RestaurantDetailScreenView()
+    let webVC = WebViewVC()
     
     override func viewDidLoad() {
         view.addSubview(detailScreen)
@@ -23,9 +25,17 @@ class RestaurantDetailScreenVC: UIViewController {
             make.leading.equalToSuperview()
             make.trailing.equalToSuperview()
         }
+        
+        detailScreen.viewMenuButton.addTarget(self, action: #selector(showMenuWebpage), for: .touchUpInside)
     }
     
     func updateScreenValues (restaurantModel: RestaurantModel) {
         detailScreen.updateValues(restaurantModel: restaurantModel)
+        print(restaurantModel.menuURL)
+        webVC.goToURL(url: restaurantModel.menuURL)
+    }
+    
+    @objc func showMenuWebpage () {
+        navigationController?.pushViewController(webVC, animated: true)
     }
 }
