@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 class LaunchScreenVC: UIViewController {
+    var coordinator: MainCoordinator?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,8 +27,6 @@ class LaunchScreenVC: UIViewController {
     }
     
     @objc func changeScreen () {
-        let listVC = RestaurantListVC()
-        
-        navigationController?.pushViewController(listVC, animated: true)
+        coordinator?.goToListView()
     }
 }

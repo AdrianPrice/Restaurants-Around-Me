@@ -11,6 +11,7 @@ import WebKit
 
 class WebViewVC: UIViewController, WKNavigationDelegate {
     var webURL: String?
+    var coordinator: MainCoordinator?
     
     let webView: WKWebView = {
         let webView = WKWebView()

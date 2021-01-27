@@ -9,28 +9,41 @@ import Foundation
 import UIKit
 import CoreLocation
 
-class RestaurantListVC: UITableViewController {
+class RestaurantListVC: UIViewController {
+    var coordinator: MainCoordinator?
+    var tableController: TableVC?
+    
+    var restaurantList: RestaurantListView = {
+        let view = RestaurantListView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.register(RestaurantCell.self, forCellReuseIdentifier: "cellID")
+        return view
+    }()
+    
     var nav = false
     var userLocationData = LocationModel(latitude: "-37.4718", longitude: "145.1426", cityName: "Ringwood") //This will eventually be fetched
     
     let locationManager = CLLocationManager()
+    
+    let locationPresenter = LocationPresenter()
+    let listPresenter = RestaurantListPresenter()
+    let detailsPresenter = RestaurantDetailsPresenter()
     
     /*
      SAMPLE DATA
     -37.4718    145.1426    Ringwood
      -37.907803 145.133957  Clayton
      */
-    let dataManager = RestaurantDataManager()
-    
-    let restaurantList: RestaurantListView = {
-        let view = RestaurantListView()
-        return view
-    }()
     
     var restaurantDetails: [RestaurantModel] = [RestaurantModel]()
     
     override func loadView() {
         super.loadView()
+        
+        locationPresenter.delegate = self
+        listPresenter.delegate = self
+        detailsPresenter.delegate = self
+        
         // For use in foreground
         self.locationManager.requestWhenInUseAuthorization()
 
@@ -38,35 +51,18 @@ class RestaurantListVC: UITableViewController {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
             locationManager.startUpdatingLocation()
-
         }
-
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
-        dataManager.delegate = self
-        
-        
-        tableView.register (RestaurantCell.self, forCellReuseIdentifier: "cellID")
         view.addSubview(restaurantList)
-    }
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return restaurantDetails.count
-    }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cellID", for: indexPath) as! RestaurantCell
-        cell.label.text = restaurantDetails[indexPath.row].name
-        if let url = URL(string: restaurantDetails[indexPath.row].images.thumbnail) {
-            cell.pictureView.load(url: url)
+        restaurantList.snp.makeConstraints { (make) in
+            make.top.bottom.leading.trailing.equalToSuperview()
         }
-        cell.updateRatingStarts(rating: restaurantDetails[indexPath.row].ratings.ratingDouble)
-        return cell
-    }
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let descriptionVC = RestaurantDetailScreenVC()
-        descriptionVC.updateScreenValues(restaurantModel: restaurantDetails[indexPath.row])
-        navigationController?.pushViewController(descriptionVC, animated: true)
+        tableController = TableVC(tableView: restaurantList, data: restaurantDetails)
+        tableController?.coordinator = self.coordinator
     }
     
     override func willMove(toParent parent: UIViewController?) {
@@ -80,38 +76,30 @@ class RestaurantListVC: UITableViewController {
     }
 }
 
-extension RestaurantListVC: RestaurantDataDelegate {
-    func gotDetailData(restaurantDetail: RestaurantModel) {
-        
-        restaurantDetails.append(restaurantDetail)
-        
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
-        
-    }
-    
-    func gotListData(restaurantListData: RestaurantListModel) {
-//        print(restaurantListData.nearbyRestaurants)
-        
-        for id in restaurantListData.nearbyRestaurants {
-            dataManager.fetchRestaurantDetails(restaurantID: id)
-        }
-        
-    }
-    
+extension RestaurantListVC: LocationPresenterDelegate {
     func gotLocationData(locationData: LocationModel) {
-//        print(locationData.cityID)
-//        print(locationData.groupType)
-        
-        dataManager.fetchListOfRestaurantIDs(userLocation: locationData)
+        listPresenter.fetch(userLocation: locationData)
+    }
+}
+
+extension RestaurantListVC: RestaurantListPresenterDelegate {
+    func gotListData(listData: RestaurantListModel) {
+        for id in listData.nearbyRestaurants {
+            detailsPresenter.fetch(restaurantID: id)
+        }
+    }
+}
+
+extension RestaurantListVC: RestaurantDetailsPresenterDelegate {
+    func gotDetailsData(restaurantDetails: RestaurantModel) {
+        self.restaurantDetails.append(restaurantDetails)
+        tableController?.updateTableView(restaurantDetails: self.restaurantDetails)
     }
 }
 
 extension RestaurantListVC: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-        print("locations = \(locValue.latitude) \(locValue.longitude)")
         
         let geoCoder = CLGeocoder()
         let loc: CLLocation = CLLocation(latitude: locValue.latitude, longitude: locValue.longitude)
@@ -122,11 +110,11 @@ extension RestaurantListVC: CLLocationManagerDelegate {
                 if let city = placemark.locality {
                     self.userLocationData = LocationModel(latitude: String(locValue.latitude), longitude: String(locValue.longitude), cityName: city)
                     self.restaurantDetails = []
-                    self.dataManager.fetchLocationData(userLocation: self.userLocationData)
+                    self.locationPresenter.fetch(userLocation: self.userLocationData)
                 } else {
                     print("No address found")
                     self.restaurantDetails = []
-                    self.dataManager.fetchLocationData(userLocation: self.userLocationData)
+                    self.locationPresenter.fetch(userLocation: self.userLocationData)
                 }
                 
             }

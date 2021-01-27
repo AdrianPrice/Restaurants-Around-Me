@@ -10,8 +10,10 @@ import UIKit
 import WebKit
 
 class RestaurantDetailScreenVC: UIViewController, WKUIDelegate {
+    var coordinator: MainCoordinator?
     let detailScreen = RestaurantDetailScreenView()
-    let webVC = WebViewVC()
+    var url: String?
+    
     
     override func viewDidLoad() {
         view.addSubview(detailScreen)
@@ -31,11 +33,12 @@ class RestaurantDetailScreenVC: UIViewController, WKUIDelegate {
     
     func updateScreenValues (restaurantModel: RestaurantModel) {
         detailScreen.updateValues(restaurantModel: restaurantModel)
-        print(restaurantModel.menuURL)
-        webVC.goToURL(url: restaurantModel.menuURL)
+        url = restaurantModel.menuURL
     }
     
     @objc func showMenuWebpage () {
-        navigationController?.pushViewController(webVC, animated: true)
+        if let url = self.url {
+            coordinator?.goToWebView(url: url)
+        }
     }
 }
